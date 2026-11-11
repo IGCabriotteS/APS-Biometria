@@ -1,0 +1,194 @@
+# Guia do grupo: o que é o trabalho, o que o código faz e como testar
+
+Este guia existe para que todos do grupo entendam o projeto sem precisar ler todas as páginas do trabalho escrito. Leia primeiro este documento e depois, com calma, os capítulos que você vai apresentar. A apresentação vale 30% da nota e a banca pergunta o que o grupo sabe explicar.
+
+## A ideia em um minuto
+
+O enunciado pede um sistema que protege o acesso a um cofre do Ministério do Meio Ambiente usando o **rosto** das pessoas. O programa que construímos funciona assim:
+
+- a pessoa se coloca diante da câmera e escolhe qual compartimento do cofre quer abrir;
+- o programa localiza o rosto, trata a imagem, calcula uma "impressão digital numérica" do rosto e compara com a dos usuários cadastrados;
+- se reconhecer alguém, consulta uma **tabela de permissões** com três níveis: nível 1 (acesso geral), nível 2 (diretor, só da sua divisão) e nível 3 (só o ministro);
+- registra tudo em um histórico que não pode ser alterado sem deixar rastro.
+
+O enunciado exige que o trabalho siga as **cinco fases do processamento de imagens**. O programa tem um módulo para cada uma, e isso é o que mais deve ficar claro na apresentação:
+
+[QUADRO fases | As cinco fases no nosso programa | Elaborado pelos autores (2026). | 22,38,40]
+| Fase | O que faz no nosso programa | Arquivo |
+| 1. Aquisição | Captura a imagem da câmera (ou lê um arquivo de foto) | `aquisicao.py` |
+| 2. Pré-processamento | Converte para cinza, tira ruído, corrige luz e contraste, confere se a imagem presta | `preprocessamento.py` |
+| 3. Segmentação | Acha o rosto, recorta, endireita pela linha dos olhos e tira o fundo | `segmentacao.py` |
+| 4. Extração de características | Transforma o rosto em 3.776 números (técnica LBP) | `caracteristicas.py` |
+| 5. Classificação | Compara com os cadastrados e decide: reconhecido ou desconhecido | `classificacao.py` |
+
+## O que cada parte do trabalho escrito aborda
+
+[QUADRO capitulos | Resumo dos capítulos do trabalho escrito | Elaborado pelos autores (2026). | 24,76]
+| Capítulo | O que aborda, em uma linha |
+| 1. Objetivo e motivação | O que queremos fazer e por que um cofre exige priorizar segurança sobre conveniência |
+| 2. Introdução | Biometria, o problema do enunciado, o que ficou de fora, metodologia e interdisciplinaridade |
+| 3. Fundamentos | A teoria: biometria, as cinco fases, detecção de rosto (Viola e Jones), LBP, eigenfaces, redes profundas, métricas de erro (FAR, FRR, EER), ataques com foto, controle de acesso, LGPD |
+| 4. Plano de desenvolvimento | Requisitos, tecnologias escolhidas e por quê, etapas, plano de testes e riscos |
+| 5. Projeto do programa | Como cada módulo funciona, regras de segurança, resultados dos testes e experimentos, limitações |
+| 6. Considerações finais | O que aprendemos, o que ficou limitado, o que fazer depois |
+| Ficha APS (última página) | Página reservada para as fichas digitalizadas de cada integrante |
+
+## O código, sem jargão
+
+**Por que LBP e não rede neural?** O enunciado pede as cinco fases. Com LBP, cada fase é um algoritmo que dá para explicar e mostrar. Uma rede neural esconderia as fases dentro de um modelo opaco, precisaria de milhares de fotos e deixaria o cofre dependente de modelos de terceiros.
+
+**O que é o LBP?** Para cada pixel, o programa compara o brilho dos 8 vizinhos com o do pixel do meio: vizinho mais claro vira 1, mais escuro vira 0. Os oito bits formam um número. Dividimos o rosto em 8 por 8 blocos e contamos quantas vezes cada padrão aparece em cada bloco. O resultado é um vetor de 3.776 números que descreve a textura do rosto. Como só importa se um vizinho é mais claro ou mais escuro, mudar o brilho geral da foto quase não altera o resultado.
+
+**Como decide quem é?** Mede a distância (qui-quadrado) entre o rosto da câmera e os rostos guardados. O mais próximo é o candidato. Só é aceito se a distância for menor que **0,38**. Caso contrário o rosto é "desconhecido", mesmo que alguém seja o "mais parecido".
+
+**Defesas que vão além do enunciado** (podem render pontos em "funções extras"):
+
+- confirma a identidade em **8 de 12 quadros seguidos**, não em um só;
+- recusa se aparecer **mais de um rosto** (impede entrar acompanhado);
+- **prova de vida**: pede que a pessoa pisque (dois quadros seguidos sem olhos); os quadros de olhos abertos antes e depois precisam ser do **mesmo usuário**, e só conclui depois de reconfirmá-lo (dificulta trocar a foto pelo rosto de outra pessoa; um ataque coreografado ainda é possível);
+- **bloqueia o terminal por 60 s** depois de 3 falhas seguidas de reconhecimento, ou seja, rosto desconhecido ou prova de vida falha (o bloqueio sobrevive a fechar o programa). Quem é reconhecido mas pede um compartimento proibido é negado e registrado, **sem** bloqueio;
+- o **modelo** tem uma "assinatura" (SHA-256): se o arquivo for trocado, o programa recusa. A recuperação é um comando local (`python -m cofre retreinar`), não do menu;
+- o **histórico** de acessos é encadeado por hash e tem uma âncora com o total de linhas: editar, apagar uma linha do meio ou cortar as últimas é detectado. Cadastros e remoções também entram no histórico;
+- cadastrar, remover e ver relatórios **exigem que o ministro se autentique** (vale 5 minutos);
+- só pode existir **um ministro** ativo; o menu **não permite remover o ministro** (a troca é feita por `python -m cofre trocar-ministro`);
+- guarda a foto das tentativas negadas como evidência.
+
+**Números para decorar** (todos medidos; ver capítulo 5):
+
+- **55 testes automatizados**, todos passando;
+- base ORL (40 pessoas), média de 30 divisões aleatórias: taxa de erro igual (EER) de **15,1%** (desvio-padrão de 3,1 pontos);
+- com o limiar 0,38: falsa aceitação média de **0,18%** e falsa rejeição média de **36,2%**; ou seja, o sistema é seguro, mas recusa muitos legítimos **na ORL**;
+- mais imagens de cadastro reduzem muito o erro: EER de 28,4% com 2 imagens e 11,6% com 7, por isso o cofre captura **25 amostras**;
+- processamento de cerca de **29 ms por quadro** (o programa não é o gargalo).
+
+**O que NÃO foi medido** (diga com clareza se perguntarem): o desempenho com a câmera e pessoas reais; a taxa com que uma foto em movimento passa na prova de vida; o efeito da votação sobre a falsa aceitação.
+
+## Como instalar e testar, passo a passo
+
+### Preparação (uma vez por computador)
+
+- instale o **Python 3.12** (python.org). Na instalação, marque "Add python.exe to PATH";
+- abra o PowerShell na pasta `codigo` do projeto e rode: `python -m pip install -r requirements.txt`;
+- confira se a câmera funciona e se nenhum outro programa (Teams, Zoom) a está usando.
+
+### Teste 1: os testes automáticos (sem câmera)
+
+Primeiro baixe a base ORL (veja o Teste 5), porque 15 dos testes dependem dela. Depois, na pasta `codigo`, rode `python -m unittest discover -s testes`. **Esperado:** uma linha final com `Ran 55 tests` e `OK`. Se aparecer `OK (skipped=15)`, a base ORL não foi encontrada e os testes de integração não rodaram.
+
+### Teste 2: a câmera e a detecção
+
+Rode `python -m cofre diagnostico` e, durante os 12 segundos, olhe para a câmera e **pisque várias vezes**. **Esperado:** rosto detectado em quase todos os quadros, dois olhos abertos na maioria e algumas piscadas reconhecidas. Se as piscadas ficarem em zero, veja a seção "Se algo não funcionar".
+
+### Teste 3: o roteiro completo do cofre (precisa de 4 pessoas do grupo)
+
+Rode `python -m cofre` para abrir o menu. Use uma pasta de dados de teste, para não misturar com a apresentação: antes, no PowerShell, `$env:COFRE_DADOS = "C:\temp\dados_teste"`. Os relatórios e o histórico ficam dentro dessa pasta.
+
+**Regra do bloqueio, para o roteiro não travar:** três falhas de reconhecimento seguidas (rosto desconhecido, prova de vida que falha ou tempo esgotado) bloqueiam o terminal por 60 s. Cada tentativa de um desconhecido dura até 15 s. Entre um passo de ataque e outro, faça uma autenticação legítima (por exemplo, A abrindo o Arquivo Geral), que zera o contador.
+
+[QUADRO roteiro | Roteiro de teste com quatro pessoas | Elaborado pelos autores (2026). | 10,34,56]
+| Passo | O que fazer | Resultado esperado |
+| 1 | Pessoa A: opção 1 (Cadastrar). Com banco vazio, o primeiro cadastro é o do ministro | Janela da câmera captura 25 amostras; mensagem de usuário cadastrado |
+| 2 | Pessoa B: opção 1. O programa pede que A se autentique (pisque). Cadastre B como nível 2, divisão "Agrotóxicos e Biocidas" | Autenticação de A aceita; B cadastrado |
+| 3 | Pessoa C: opção 1 (a sessão de A vale 5 minutos). Cadastre C como nível 1 | C cadastrado |
+| 4 | Opção 2 (Autenticar). A abre a Câmara Central (compartimento 4) | ACESSO PERMITIDO (tela verde) |
+| 5 | B abre o Laboratório de Toxinas Agrícolas (2) | PERMITIDO (é da divisão dele) |
+| 6 | B tenta o Laboratório de Resíduos Perigosos (3) e depois a Câmara Central (4) | NEGADO nos dois (outra divisão; exclusivo do ministro). Não bloqueia |
+| 7 | C abre o Arquivo Geral (1), depois tenta o Laboratório (2) | PERMITIDO no primeiro; NEGADO no segundo |
+| 8 | Pessoa D (não cadastrada) tenta qualquer compartimento. Depois A abre o Arquivo Geral | NEGADO: "rosto não reconhecido" (após cerca de 15 s); A zera o contador |
+| 9 | Mostre uma foto de A no celular diante da câmera. Depois A abre o Arquivo Geral | Deve ser negado (prova de vida não realizada). **Registre o que acontecer de verdade** |
+| 10 | Duas pessoas no quadro ao mesmo tempo. Depois A abre o Arquivo Geral | Mensagem "Mais de um rosto no campo de visão"; negado por tempo |
+| 11 | D tenta três vezes seguidas, sem sucesso no meio | Na terceira falha, terminal bloqueado por 60 s; aguarde o fim do bloqueio |
+| 12 | Opção 5 (Relatórios); A se autentica | Resumo na tela e arquivos CSV na pasta `relatorios` dentro de `COFRE_DADOS` |
+| 13 | Opção 6 (Integridade do histórico) | "Histórico ÍNTEGRO" |
+| 14 | Opção 7 (Demonstração das 5 fases) | Janela com as cinco fases lado a lado, ao vivo |
+| 15 | Opção 4 (Remover usuário), escolha o próprio ministro e confirme com `s` | Recusado: "O ministro não pode ser removido pelo menu" |
+
+**Atenção ao passo 9:** é um teste de ataque. Se a foto passar, isso é um achado que deve constar na apresentação como limitação, e não algo a esconder. O mesmo vale para o passo 10 (duas pessoas): confirme que não houve acesso.
+
+### Teste 4: mostrar que o histórico detecta fraude
+
+Faça só na pasta de teste (`COFRE_DADOS` definido). Depois de gerar alguns acessos, adultere o histórico de propósito e use a opção 6 do menu:
+
+- `python ferramentas\adulterar_historico.py editar` muda o resultado da primeira linha;
+- `python ferramentas\adulterar_historico.py apagar` apaga a última linha.
+
+**Esperado:** a opção 6 passa a dizer "HISTÓRICO VIOLADO a partir da linha N". O script recusa rodar se `COFRE_DADOS` não estiver definido, para não estragar os dados da apresentação.
+
+### Teste 5: medir o desempenho com a base pública (sem câmera)
+
+- `python -m pip install -r requirements-ferramentas.txt`
+- `python ferramentas\baixar_orl.py ..\base_teste\orl`
+- `python -m cofre avaliar ..\base_teste\orl --amostras 5`
+
+**Esperado:** EER de cerca de 17,25% e identificação correta de 83% nessa divisão de referência (a que está no trabalho); o resultado médio de 30 divisões é 15,1%. Para refazer todas as tabelas e figuras do trabalho (demora cerca de 35 minutos): `python ferramentas\experimentos.py ..\base_teste\orl ..\figuras ..\documentos\resultados.json`.
+
+### Teste 6: autenticar por arquivo de imagem (plano B se a câmera falhar)
+
+Com usuários já cadastrados: `python -m cofre autenticar-arquivo foto.jpg --compartimento 4`. **Esperado:** PERMITIDO ou NEGADO, com o nome e o motivo. **Cuidado:** esse caminho não tem prova de vida; uma foto do titular passa. Serve só para demonstração e fica marcado no histórico.
+
+### Teste 7: conferir o limiar com os rostos do grupo
+
+Depois de cadastrar A, B e C (passos 1 a 3 do Teste 3), rode `python -m cofre calibrar`. O comando compara as amostras de cadastro entre si e mostra a menor distância entre pessoas diferentes e a maior entre amostras da mesma pessoa.
+
+- se a **maior distância dos legítimos** estiver abaixo da **menor dos impostores**, as faixas não se sobrepõem e o limiar 0,38 só precisa ficar abaixo da menor distância de impostor;
+- se houver sobreposição, o problema está na captura (luz, posição, desfoque): refaça o cadastro antes de mexer no limiar.
+
+Os números são **otimistas** (mesma sessão, poucos impostores). Para comparar o efeito de CLAHE e máscara na sua câmera: cadastre com `USAR_CLAHE` e `USAR_MASCARA` em `True` (padrão) e rode `calibrar`; depois mude os dois para `False` em `cofre\config.py`, **refaça os cadastros** e rode `calibrar` de novo. Fique com a configuração de maior folga entre as duas faixas, e conte isso na apresentação.
+
+### Teste 8: recuperação (opcional, só na pasta de teste)
+
+- modelo adulterado: acrescente um byte ao arquivo `modelo.npz` da pasta de dados. A opção 2 passa a recusar, explicando que o modelo foi alterado. Rode `python -m cofre retreinar` (confirme digitando SIM) para recuperar; a operação aparece no histórico;
+- troca de ministro: `python -m cofre trocar-ministro` captura primeiro o novo ministro pela câmera; só se der certo o anterior é substituído e a biometria dele é apagada. Se você cancelar com ESC, o anterior continua como estava.
+
+## Se algo não funcionar
+
+- **Nenhum dos nossos rostos é reconhecido:** melhore a luz (de frente, sem janela atrás), cadastre no mesmo lugar onde vai usar e olhe de frente. Rode `python -m cofre calibrar` (Teste 7). O limiar de 0,38 foi escolhido pela base ORL, que é mais difícil que uma câmera em alguns aspectos e diferente em outros. Só aumente `LIMIAR_DISTANCIA` em `cofre\config.py` se o `calibrar` mostrar que há folga: **nunca acima da menor distância de impostor** que ele mostrar. Aumentar o limiar reduz as recusas e aumenta o risco de aceitar intrusos, e isso deve ser dito na apresentação. (Na ORL, o limiar que iguala os dois erros, cerca de 0,45, aceitaria uma fração grande de impostores: não é uma boa regra para um cofre.)
+- **A prova de vida não conclui:** pisque de forma bem marcada (olhos fechados por um instante), olhando para a câmera, com boa luz e sem óculos escuros. Depois da piscada, fique de frente por um segundo para o sistema reconfirmar quem você é. Se persistir, a opção é desligar a prova de vida para a demonstração (`EXIGIR_PROVA_DE_VIDA = False` em `config.py`), declarando isso, porque a detecção de piscada foi ajustada com apenas uma pessoa.
+- **A câmera não abre:** feche Teams, Zoom e o aplicativo Câmera do Windows e verifique Configurações > Privacidade > Câmera.
+- **Aparece erro de "cascata":** instalou a versão errada do OpenCV. Use `python -m pip install opencv-python==4.11.0.86`.
+- **"Modelo alterado" ou "sem impressão digital":** o modelo foi mexido ou perdido. Um administrador da máquina roda `python -m cofre retreinar`.
+- **"Terminal bloqueado":** aguarde 60 s. O bloqueio é gravado no banco e não some fechando o programa.
+- **Perdi o ministro (ou ele saiu):** `python -m cofre trocar-ministro`.
+
+## Roteiro sugerido de apresentação (10 a 12 minutos)
+
+[QUADRO apresentacao | Sugestão de divisão da apresentação entre quatro pessoas | Elaborado pelos autores (2026). | 8,22,70]
+| Min | Quem | Conteúdo |
+| 1 | Pessoa 1 | O cenário do cofre, o objetivo e as cinco fases (capítulos 1 e 2) |
+| 3 | Pessoa 2 | Fundamentos: detecção do rosto, LBP, distância e erros FAR/FRR (capítulo 3) |
+| 4 | Pessoa 3 | Demonstração ao vivo: cinco fases, três níveis, desconhecido negado, bloqueio (capítulo 5, passos 4 a 11 do roteiro) |
+| 2 | Pessoa 4 | Segurança extra, resultados com números honestos, limitações e trabalhos futuros (capítulo 5 e considerações finais) |
+
+Deixe um vídeo curto gravado da demonstração como reserva, caso a câmera ou a iluminação do local da apresentação atrapalhem.
+
+## Perguntas que a banca pode fazer
+
+[QUADRO perguntas | Perguntas prováveis e respostas curtas | Elaborado pelos autores (2026). | 34,66]
+| Pergunta | Resposta |
+| Por que não usaram rede neural? | O enunciado pede as cinco fases explícitas; com LBP cada fase é um algoritmo que dá para mostrar. Redes escondem as fases e precisam de muitos dados e de modelos de terceiros. Reconhecemos que redes têm desempenho maior |
+| O que é o LBP? | Compara cada pixel com os 8 vizinhos e forma um número de 8 bits; contamos os padrões por bloco do rosto e concatenamos. É invariante a mudanças monotônicas de brilho |
+| Por que o limiar é 0,38, e vale para a câmera? | Veio da ORL, escolhido logo acima da menor distância de impostor da divisão de referência. Em 30 divisões aleatórias a falsa aceitação média foi de 0,18%. Mas é um ponto de partida: a ORL tem imagens de 64 por 64 e não passa por detecção nem alinhamento. Por isso criamos o comando `calibrar` para conferir com os nossos rostos |
+| Qual é a FAR do sistema com a câmera? | Não foi medida com muitos usuários. Só temos a medição na ORL e uma calibração otimista com as amostras do próprio grupo. Dizemos isso no trabalho |
+| Por que a falsa rejeição é tão alta (36%)? | A ORL tem poucas imagens de cadastro (5), baixa resolução e poses muito variadas. Com 25 amostras e câmera esperamos menos, mas é hipótese. O experimento mostra que mais imagens de cadastro reduzem muito o erro |
+| EER pode passar de 50%? | Na nossa definição, sim: a FRR inclui o legítimo identificado como outra pessoa (a FNIR da ISO 19795-1). Com grade 1 por 1 deu 52,8% na divisão de referência, mas acertar por acaso entre 20 pessoas seria 5%: não é pior que o sorteio |
+| A equalização e a máscara ajudaram? | Na ORL, não: pioraram (EER médio 15,1% com elas, 10,5% sem). Mantivemos como opção ligada porque pensamos em câmera real, mas é hipótese e deixamos configurável para testar com a webcam |
+| Como evitam fraude com foto? | Prova de vida por piscada (2 quadros sem olhos), reconfirmação da identidade no fim, recusa de mais de um rosto e registro de evidência. Um vídeo do titular piscando poderia passar, e não medimos a taxa de fotos em movimento: está na lista de limitações |
+| O que impede trocar a foto pelo meu rosto depois da identificação? | A autenticação só conclui se o mesmo usuário for reconhecido de novo nos quadros finais; um rosto desconhecido que pisca não conclui. Há um teste automatizado dessa troca |
+| A votação de 8 em 12 reduz a falsa aceitação? | Reduz erros de um quadro só, mas os quadros são correlacionados e um sósia estável passa nos 8. Não medimos o efeito e não afirmamos |
+| O que acontece se o arquivo do modelo for trocado? | O programa calcula o SHA-256 e compara com o guardado no banco; se diferir, ou se faltar o hash, recusa. A recuperação é o comando local `retreinar`, que fica registrado no histórico |
+| Como garantem que o histórico não foi alterado? | Cada linha guarda o hash da anterior e há uma âncora com o total de linhas; editar, apagar do meio ou cortar o fim é detectado. O limite: a âncora está no mesmo banco, então quem controla a máquina inteira poderia refazer tudo |
+| Como o nível 2 só acessa a sua divisão? | Cada compartimento de nível 2 pertence a uma divisão; a política compara a divisão do diretor com a do compartimento. Isso é nível mais categoria, como nos modelos multinível |
+| Como se troca o ministro ou se recupera de um modelo adulterado, se cadastrar exige o ministro? | Pelos comandos locais `trocar-ministro` e `retreinar`, de quem administra a máquina. O menu não remove o ministro, para o sistema não ficar sem administrador |
+| E a LGPD? | Dado biométrico é dado sensível. Guardamos só recortes normalizados e apagamos as amostras ao remover o usuário, mas o histórico e as fotos de tentativas negadas continuam, e não implementamos política de retenção, base legal formal nem relatório de impacto. Dizemos isso no trabalho |
+| Que diferenças pequenas entre variantes significam? | Nada, se forem da ordem do desvio-padrão (cerca de 3 pontos). O que se destaca: dividir em blocos e ter mais imagens de cadastro |
+| A autenticação por arquivo não é uma brecha? | É: não tem prova de vida. Existe porque o enunciado admite imagem de câmera ou scanner; deve ser desativada em produção. Os registros dela vêm marcados |
+
+## Antes de entregar
+
+- conferir a capa e a folha de rosto (cidade e professor orientador já estão preenchidos);
+- colar na última página ("Ficha APS") as **fichas de APS digitalizadas** de cada integrante, preenchidas à mão e assinadas;
+- conferir o **cronograma do capítulo 4**: ele foi escrito como plano (semanas 1 a 12) e deve refletir o que o grupo realmente fez;
+- **conferir cada referência** da bibliografia (autores, ano, páginas) e, se possível, abrir cada uma. Foram verificadas por consulta à Crossref todas as de periódicos e congressos citadas, exceto Buolamwini e Gebru (2018), Huang et al. (2007), Pedregosa et al. (2011) e Bell e LaPadula (1973), que devem ser conferidas à mão. O ArcFace (Deng et al., 2019) tem páginas 4685-4694 no IEEE Xplore e 4690-4699 na versão da CVF: escolham a fonte que a UNIP pede e mantenham uma só;
+- rodar o **Teste 3** e o **Teste 7** com a câmera do grupo e, se algum número do capítulo 5 mudar (por exemplo o limiar, ou se decidirem desligar CLAHE e máscara), atualizar o texto e declarar a mudança;
+- postar a **listagem do código** (arquivo `APS_Biometria_Relatorio_de_Codigo`) no Teams, o trabalho parcial no Teams e a entrega final no site da UNIP: a não submissão no site resulta em reprovação;
+- **todos leem** o trabalho; quem apresentar precisa saber explicar o que está nele, inclusive o que **não** foi medido.

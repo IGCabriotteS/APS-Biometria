@@ -1,0 +1,36 @@
+#* Referências
+
+[REF] AHONEN, Timo; HADID, Abdenour; PIETIKÄINEN, Matti. Face description with local binary patterns: application to face recognition. **IEEE Transactions on Pattern Analysis and Machine Intelligence**, v. 28, n. 12, p. 2037-2041, 2006.
+[REF] BELHUMEUR, Peter N.; HESPANHA, João P.; KRIEGMAN, David J. Eigenfaces vs. Fisherfaces: recognition using class specific linear projection. **IEEE Transactions on Pattern Analysis and Machine Intelligence**, v. 19, n. 7, p. 711-720, 1997.
+[REF] BELL, D. Elliott; LAPADULA, Leonard J. **Secure computer systems**: mathematical foundations. Bedford: The MITRE Corporation, 1973. (MITRE Technical Report, MTR-2547).
+[REF] BRADSKI, Gary; KAEHLER, Adrian. **Learning OpenCV**: computer vision with the OpenCV library. Sebastopol: O'Reilly Media, 2008.
+[REF] BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). **Diário Oficial da União**: seção 1, Brasília, DF, 15 ago. 2018.
+[REF] BUOLAMWINI, Joy; GEBRU, Timnit. Gender shades: intersectional accuracy disparities in commercial gender classification. In: CONFERENCE ON FAIRNESS, ACCOUNTABILITY AND TRANSPARENCY, 1., 2018, Nova York. **Proceedings of Machine Learning Research**, v. 81, p. 77-91, 2018.
+[REF] DENG, Jiankang et al. ArcFace: additive angular margin loss for deep face recognition. In: IEEE/CVF CONFERENCE ON COMPUTER VISION AND PATTERN RECOGNITION, 2019, Long Beach. **Proceedings** [...]. [S. l.]: IEEE, 2019. p. 4685-4694.
+[REF] GONZALEZ, Rafael C.; WOODS, Richard E. **Processamento digital de imagens**. 3. ed. São Paulo: Pearson Prentice Hall, 2010.
+[REF] GOODFELLOW, Ian; BENGIO, Yoshua; COURVILLE, Aaron. **Deep learning**. Cambridge, MA: MIT Press, 2016.
+[REF] HARRIS, Charles R. et al. Array programming with NumPy. **Nature**, v. 585, n. 7825, p. 357-362, 2020.
+[REF] HUANG, Gary B. et al. **Labeled faces in the wild**: a database for studying face recognition in unconstrained environments. Amherst: University of Massachusetts, 2007. (Technical Report, 07-49).
+[REF] HUNTER, John D. Matplotlib: a 2D graphics environment. **Computing in Science & Engineering**, v. 9, n. 3, p. 90-95, 2007.
+[REF] INTERNATIONAL ORGANIZATION FOR STANDARDIZATION; INTERNATIONAL ELECTROTECHNICAL COMMISSION. **ISO/IEC 19795-1:2021**: information technology: biometric performance testing and reporting: part 1: principles and framework. Geneva: ISO/IEC, 2021.
+[REF] INTERNATIONAL ORGANIZATION FOR STANDARDIZATION; INTERNATIONAL ELECTROTECHNICAL COMMISSION. **ISO/IEC 30107-1:2016**: information technology: biometric presentation attack detection: part 1: framework. Geneva: ISO/IEC, 2016.
+[REF] JAIN, Anil K.; FLYNN, Patrick; ROSS, Arun A. (ed.). **Handbook of biometrics**. New York: Springer, 2008.
+[REF] JAIN, Anil K.; ROSS, Arun; PRABHAKAR, Salil. An introduction to biometric recognition. **IEEE Transactions on Circuits and Systems for Video Technology**, v. 14, n. 1, p. 4-20, 2004.
+[REF] OJALA, Timo; PIETIKÄINEN, Matti; HARWOOD, David. A comparative study of texture measures with classification based on featured distributions. **Pattern Recognition**, v. 29, n. 1, p. 51-59, 1996.
+[REF] OJALA, Timo; PIETIKÄINEN, Matti; MÄENPÄÄ, Topi. Multiresolution gray-scale and rotation invariant texture classification with local binary patterns. **IEEE Transactions on Pattern Analysis and Machine Intelligence**, v. 24, n. 7, p. 971-987, 2002.
+[REF] PEDREGOSA, Fabian et al. Scikit-learn: machine learning in Python. **Journal of Machine Learning Research**, v. 12, p. 2825-2830, 2011.
+[REF] PEDRINI, Hélio; SCHWARTZ, William Robson. **Análise de imagens digitais**: princípios, algoritmos e aplicações. São Paulo: Thomson Learning, 2008.
+[REF] RATHA, Nalini K.; CONNELL, Jonathan H.; BOLLE, Ruud M. Enhancing security and privacy in biometrics-based authentication systems. **IBM Systems Journal**, v. 40, n. 3, p. 614-634, 2001.
+[REF] SAMARIA, Ferdinando S.; HARTER, Andy C. Parameterisation of a stochastic model for human face identification. In: IEEE WORKSHOP ON APPLICATIONS OF COMPUTER VISION, 2., 1994, Sarasota. **Proceedings** [...]. [S. l.]: IEEE, 1994. p. 138-142.
+[REF] SANDHU, Ravi S. et al. Role-based access control models. **Computer**, v. 29, n. 2, p. 38-47, 1996.
+[REF] SCHROFF, Florian; KALENICHENKO, Dmitry; PHILBIN, James. FaceNet: a unified embedding for face recognition and clustering. In: IEEE CONFERENCE ON COMPUTER VISION AND PATTERN RECOGNITION, 2015, Boston. **Proceedings** [...]. [S. l.]: IEEE, 2015. p. 815-823.
+[REF] SOLOMON, Chris; BRECKON, Toby. **Fundamentos de processamento digital de imagens**: uma abordagem prática com exemplos em Matlab. Rio de Janeiro: LTC, 2013.
+[REF] STALLINGS, William. **Criptografia e segurança de redes**: princípios e práticas. 6. ed. São Paulo: Pearson Education do Brasil, 2015.
+[REF] TAIGMAN, Yaniv et al. DeepFace: closing the gap to human-level performance in face verification. In: IEEE CONFERENCE ON COMPUTER VISION AND PATTERN RECOGNITION, 2014, Columbus. **Proceedings** [...]. [S. l.]: IEEE, 2014. p. 1701-1708.
+[REF] TURK, Matthew; PENTLAND, Alex. Eigenfaces for recognition. **Journal of Cognitive Neuroscience**, v. 3, n. 1, p. 71-86, 1991.
+[REF] VIOLA, Paul; JONES, Michael. Rapid object detection using a boosted cascade of simple features. In: IEEE COMPUTER SOCIETY CONFERENCE ON COMPUTER VISION AND PATTERN RECOGNITION, 2001, Kauai. **Proceedings** [...]. [S. l.]: IEEE, 2001. v. 1, p. I-511-I-518.
+[REF] VIOLA, Paul; JONES, Michael J. Robust real-time face detection. **International Journal of Computer Vision**, v. 57, n. 2, p. 137-154, 2004.
+[REF] WANG, Mei; DENG, Weihong. Deep face recognition: a survey. **Neurocomputing**, v. 429, p. 215-244, 2021.
+[REF] YANG, Ming-Hsuan; KRIEGMAN, David J.; AHUJA, Narendra. Detecting faces in images: a survey. **IEEE Transactions on Pattern Analysis and Machine Intelligence**, v. 24, n. 1, p. 34-58, 2002.
+[REF] ZHAO, Wenyi et al. Face recognition: a literature survey. **ACM Computing Surveys**, v. 35, n. 4, p. 399-458, 2003.
+[REF] ZUIDERVELD, Karel. Contrast limited adaptive histogram equalization. In: HECKBERT, Paul S. (ed.). **Graphics gems IV**. San Diego: Academic Press, 1994. p. 474-485.

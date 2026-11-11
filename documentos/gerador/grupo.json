@@ -1,0 +1,18 @@
+{
+  "integrantes": [
+    {"nome": "Gabriela Soares Batista", "ra": "R078FD2"},
+    {"nome": "Icaro G C de Souza", "ra": "R080870"},
+    {"nome": "Letícia Silva Bezkorowayny de Oliveira", "ra": "G908AG7"},
+    {"nome": "Luíza J de Souza", "ra": "G051HC5"}
+  ],
+  "turma": "CC6P33",
+  "instituicao": "Universidade Paulista - UNIP",
+  "curso": "Ciência da Computação",
+  "disciplina": "Processamento de Imagem e Visão Computacional (PIVC)",
+  "semestre": "2026/2",
+  "ano": "2026",
+  "cidade": "São Paulo",
+  "campus": "[CAMPUS]",
+  "orientador": "Rafael Santo",
+  "titulo": "Sistema de identificação e autenticação biométrica facial para controle de acesso a cofre de segurança máxima"
+}

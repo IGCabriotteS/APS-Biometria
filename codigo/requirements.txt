@@ -1,0 +1,6 @@
+# Dependências do sistema (necessárias para executar o programa)
+# Python 3.12 recomendado.
+# A série 4.11 do OpenCV é obrigatória: a 5.0 não traz mais os arquivos de
+# classificadores em cascata (rosto e olhos) que o detector usa.
+opencv-python==4.11.0.86
+numpy>=1.26

@@ -1,0 +1,25 @@
+# Objetivo e motivação do trabalho {#obj}
+
+## Objetivo geral
+
+Este trabalho tem por objetivo projetar, implementar e avaliar um sistema de identificação e autenticação biométrica por reconhecimento facial, destinado a proteger o acesso a um cofre de segurança máxima do Ministério do Meio Ambiente, no qual estariam guardadas informações sobre o uso de toxinas de alto risco. O sistema deve reconhecer automaticamente o rosto de quem se apresenta diante da câmera e, com base nesse reconhecimento, permitir ou negar o acesso segundo uma política de permissões organizada em três níveis de segurança.
+
+## Objetivos específicos
+
+Para alcançar o objetivo geral, foram definidas as seguintes metas:
+
+- aplicar, de forma explícita e separável, as cinco fases do processamento de imagens digitais (aquisição, pré-processamento, segmentação, extração de características e classificação) ao problema do reconhecimento facial;
+- implementar o descritor de textura *Local Binary Patterns* (LBP) e o classificador por distância qui-quadrado, sem depender de funções prontas de reconhecimento, para que cada etapa possa ser explicada e testada;
+- representar os três níveis de acesso do enunciado (permissão geral, diretor de divisão e ministro) em uma política verificável, incluindo a restrição do diretor à sua própria divisão;
+- tratar as falhas previsíveis de operação (câmera indisponível, imagem de baixa qualidade, mais de uma pessoa no quadro, usuário desconhecido, modelo adulterado) sem interromper o programa e sem conceder acesso indevido;
+- acrescentar funções extras de segurança e de auditoria, como prova de vida por piscada, bloqueio temporário após falhas consecutivas, histórico de acessos protegido contra adulteração e relatórios;
+- medir o desempenho do reconhecedor com métricas padronizadas (taxas de falsa aceitação e de falsa rejeição) e discutir honestamente seus limites;
+- discutir a interdisciplinaridade do problema, que envolve computação, matemática, estatística, óptica, direito, ética e segurança da informação.
+
+## Motivação
+
+A escolha do cenário do cofre não é apenas um exercício ilustrativo. Ela representa uma situação em que o custo de um erro de autenticação é desigual: negar o acesso a uma pessoa autorizada causa transtorno e atraso, mas conceder o acesso a uma pessoa não autorizada pode ter consequências graves e irreversíveis. Essa assimetria obriga o projeto a tratar a segurança como requisito principal, e não como detalhe, o que se reflete em decisões concretas descritas nos capítulos seguintes, como a escolha de um limiar de decisão conservador e a exigência de confirmação em vários quadros consecutivos.
+
+A motivação acadêmica também é relevante. O reconhecimento facial reúne, em um único problema, praticamente todos os conceitos da disciplina de Processamento de Imagem e Visão Computacional: formação e representação da imagem, correção de iluminação, detecção de objetos, descrição de textura e classificação. Construir o sistema completo, em vez de apenas usar uma biblioteca pronta, permite compreender por que cada etapa existe, o que acontece quando ela falha e como o desempenho final depende de escolhas feitas desde a captura.
+
+Por fim, há uma motivação social. A biometria facial tornou-se comum em celulares, aeroportos e serviços públicos, mas seu uso levanta questões de privacidade, de consentimento e de justiça algorítmica. Tratar esses temas dentro do projeto, e não apenas como nota de rodapé, aproxima o trabalho da prática profissional esperada de um cientista da computação.

@@ -1,0 +1,123 @@
+# Plano de desenvolvimento da aplicação {#plano}
+
+## Requisitos do sistema
+
+### Requisitos funcionais
+
+Os requisitos funcionais foram derivados do enunciado e organizados por prioridade. Os de prioridade essencial correspondem a exigências explícitas do enunciado, e os de prioridade extra correspondem às funções adicionais que, segundo o próprio enunciado, influenciam a avaliação. O {quad:rf} os reúne.
+
+[QUADRO rf | Requisitos funcionais do sistema | Elaborado pelos autores (2026). | 11,59,15,15]
+| Código | Descrição | Prioridade | Origem |
+| RF01 | Cadastrar usuário com nome, cargo, nível de segurança e, para o nível 2, divisão, capturando amostras do rosto pela câmera | Essencial | Enunciado |
+| RF02 | Detectar e reconhecer o rosto de quem se apresenta, em tempo real | Essencial | Enunciado |
+| RF03 | Decidir o acesso ao compartimento solicitado conforme os três níveis de segurança | Essencial | Enunciado |
+| RF04 | Restringir o diretor (nível 2) aos compartimentos da sua divisão | Essencial | Enunciado |
+| RF05 | Garantir que o nível 3 seja exclusivo de um único ministro | Essencial | Enunciado |
+| RF06 | Processar a imagem em cinco fases separadas e demonstrá-las | Essencial | Enunciado |
+| RF07 | Autenticar também a partir de arquivo de imagem (câmera ou scanner) | Essencial | Enunciado |
+| RF08 | Recusar o acesso a rosto desconhecido, sem identificar ninguém | Essencial | Enunciado |
+| RF09 | Registrar toda tentativa, permitida ou negada, com data, usuário, compartimento e motivo | Extra | Projeto |
+| RF10 | Gerar relatórios de acessos e de usuários | Extra | Enunciado |
+| RF11 | Exigir prova de vida na autenticação em tempo real | Extra | Projeto |
+| RF12 | Bloquear o terminal após falhas consecutivas | Extra | Projeto |
+| RF13 | Exigir a autenticação do ministro nas operações administrativas | Extra | Projeto |
+| RF14 | Remover usuário e apagar seus dados biométricos | Extra | LGPD |
+| RF15 | Verificar a integridade do histórico de acessos e do modelo | Extra | Projeto |
+| RF16 | Avaliar o desempenho do reconhecedor (FAR, FRR, EER) em uma base de imagens | Extra | Projeto |
+
+### Requisitos não funcionais
+
+Os requisitos não funcionais descrevem qualidades que o sistema deve apresentar, e não funções. O {quad:rnf} traz cada um, com o critério pelo qual será verificado.
+
+[QUADRO rnf | Requisitos não funcionais e critérios de verificação | Elaborado pelos autores (2026). | 24,38,38]
+| Qualidade | Requisito | Critério de verificação |
+| Segurança | Priorizar a rejeição de intrusos sobre a conveniência | Taxa de falsa aceitação medida em conjunto aberto, com limiar escolhido por experimento |
+| Desempenho | Processar o vídeo com fluidez em computador comum, sem placa gráfica | Tempo de processamento por quadro medido na câmera |
+| Robustez | Tratar falhas previsíveis sem encerrar o programa | Cenários de erro cobertos por testes automatizados |
+| Usabilidade | Dar retorno claro ao usuário em cada etapa | Mensagens em tela para cada estado da autenticação |
+| Privacidade | Armazenar o mínimo necessário e permitir a eliminação | Guarda de recortes normalizados e função de remoção |
+| Manutenibilidade | Separar as fases em módulos independentes e testáveis | Um módulo por fase, com testes automatizados |
+| Reprodutibilidade | Permitir que outra pessoa repita os experimentos | Scripts de experimentos e de geração de figuras versionados |
+| Portabilidade | Executar em Windows com Python | Instalação por gerenciador de pacotes, sem servidor externo |
+
+## Escolha das tecnologias
+
+O enunciado lista as tecnologias permitidas: Python, TensorFlow, Keras, Java, C#, JavaScript, TensorFlow.js, MySQL e servidor Apache no XAMPP. A escolha das ferramentas considerou a adequação ao problema, o grau de transparência e a facilidade de execução em um computador comum. O {quad:tecnologias} apresenta as tecnologias adotadas e o motivo de cada uma.
+
+[QUADRO tecnologias | Tecnologias adotadas e justificativa | Elaborado pelos autores (2026). | 22,28,50]
+| Componente | Tecnologia | Justificativa |
+| Linguagem | Python 3.12 | Permitida pelo enunciado, legível e com bibliotecas maduras para imagens e para ciência de dados |
+| Imagens e vídeo | OpenCV 4.11 | Captura de câmera, filtros, detectores em cascata e desenho de interface em janelas (BRADSKI; KAEHLER, 2008) |
+| Cálculo numérico | NumPy | Operações vetorizadas sobre matrizes, necessárias para o LBP e para as distâncias (HARRIS et al., 2020) |
+| Banco de dados | SQLite | Banco embutido na biblioteca padrão do Python, sem servidor, com transações e restrições de integridade |
+| Gráficos do relatório | Matplotlib | Geração reprodutível das figuras de resultados (HUNTER, 2007) |
+| Testes | unittest | Biblioteca padrão, sem dependências |
+| Base de avaliação | ORL (AT&T), obtida pela biblioteca scikit-learn | Base pública clássica de rostos para pesquisa (SAMARIA; HARTER, 1994); a biblioteca (PEDREGOSA et al., 2011) é usada só para baixá-la |
+
+### Por que não usar aprendizado profundo
+
+As bibliotecas TensorFlow e Keras, também permitidas, tornariam possível usar uma rede neural profunda, que em bases públicas supera os descritores clássicos. Três razões levaram o grupo a não adotá-las. A primeira é a **transparência**: o enunciado exige que o trabalho siga as cinco fases do processamento de imagens, e isso é demonstrável de forma direta quando cada fase é um algoritmo explícito, enquanto em uma rede profunda a extração e a classificação se fundem em um modelo opaco. A segunda é a **escala dos dados**: redes profundas precisam de milhares de imagens por pessoa para treinar, ou de modelos pré-treinados de terceiros, que trazem questões de origem dos dados e de auditoria incompatíveis com um cofre de segurança máxima. A terceira é o **custo de execução**: o descritor LBP roda em tempo real em um computador comum, sem placa gráfica. A troca é assumida com clareza: o desempenho absoluto do LBP é inferior ao das redes profundas, e a seção de limitações volta ao assunto.
+
+### Por que não usar MySQL e servidor web
+
+O MySQL e o servidor Apache no XAMPP seriam necessários em uma aplicação multiusuário em rede. O cofre, por sua natureza, é um terminal local que não deve expor serviços de rede, pois cada porta aberta é uma superfície de ataque. O SQLite oferece as garantias necessárias, como transações e restrições, em um único arquivo e sem servidor, o que também simplifica a instalação.
+
+## Ambiente de desenvolvimento
+
+O desenvolvimento e os testes foram feitos em um computador com sistema operacional Windows 10, processador de oito núcleos lógicos, 8 GB de memória e câmera integrada de resolução 640 por 480 pixels. O interpretador usado foi o Python 3.12.10, com as bibliotecas OpenCV 4.11, NumPy 2.5, Matplotlib 3.11 e scikit-learn 1.9, esta última empregada somente para obter a base ORL. Não foi usada placa gráfica. A escolha da versão 4.11 do OpenCV, e não de uma mais nova, decorreu de um fato prático: a versão 5.0, testada inicialmente, não inclui mais os arquivos de classificadores em cascata de rostos e olhos, indispensáveis ao detector.
+
+## Etapas do desenvolvimento
+
+O desenvolvimento foi dividido em etapas curtas e sequenciais, cada uma terminando em algo que pode ser executado e testado. O {quad:etapas} apresenta o plano, com a duração relativa de cada etapa.
+
+[QUADRO etapas | Etapas planejadas do desenvolvimento | Elaborado pelos autores (2026). | 8,52,20,20]
+| Etapa | Atividades | Duração | Entrega |
+| 1 | Estudo do enunciado, levantamento bibliográfico e definição de requisitos | Semanas 1 e 2 | Requisitos e referências |
+| 2 | Aquisição, pré-processamento e segmentação (fases 1 a 3) | Semanas 3 e 4 | Detecção e recorte do rosto |
+| 3 | Extração de características e classificação (fases 4 e 5) | Semanas 5 e 6 | Reconhecedor funcional |
+| 4 | Experimentos com base pública e escolha dos parâmetros | Semana 7 | Limiar e parâmetros justificados |
+| 5 | Banco de dados, política de acesso e registro de acessos | Semana 8 | Decisão de acesso em três níveis |
+| 6 | Autenticação em tempo real, prova de vida e bloqueio | Semana 9 | Fluxo completo com câmera |
+| 7 | Interface, relatórios e tratamento de erros | Semana 10 | Programa utilizável |
+| 8 | Testes finais, redação do relatório e preparo da apresentação | Semanas 11 e 12 | Trabalho completo |
+
+## Tratamento dos dados
+
+### Dados de cadastro
+
+Os dados de cadastro são as informações do usuário (nome, cargo, nível e divisão) e as amostras do rosto. Para cada usuário, o sistema captura 25 recortes de rosto de qualidade aprovada, com intervalo mínimo entre as capturas e com instruções para variar levemente a pose, de modo que o cadastro represente a variação natural do rosto. Os recortes guardados já passaram pelo pré-processamento e pela máscara, de modo que não contêm o fundo da cena nem a imagem completa do usuário.
+
+### Dados de avaliação
+
+Para medir o desempenho sem usar fotografias de pessoas reais sem autorização, foi usada a base ORL, uma coleção pública e amplamente citada, com 40 pessoas e dez imagens de cada uma, obtidas em condições variadas de expressão, pose e detalhes faciais (SAMARIA; HARTER, 1994). A versão utilizada, distribuída pela biblioteca scikit-learn, tem imagens de 64 por 64 pixels em tons de cinza. A resolução é menor do que a de uma câmera, o que torna a avaliação mais difícil, e essa diferença é considerada na discussão dos resultados.
+
+## Plano de testes
+
+A verificação do sistema foi planejada em quatro níveis, descritos no {quad:testes}.
+
+[QUADRO testes | Níveis de teste planejados | Elaborado pelos autores (2026). | 20,45,35]
+| Nível | O que verifica | Como |
+| Unitário | Cada função de cada fase e regra de negócio isoladamente | Testes automatizados com entradas conhecidas |
+| Integração | O fluxo completo de cadastro, autenticação, decisão e registro | Testes automatizados sem câmera, com imagens da base ORL |
+| Desempenho | Taxas de erro e escolha de parâmetros | Experimentos em conjunto aberto, com separação entre cadastro e teste |
+| Aceitação | O funcionamento com câmera real e usuários | Diagnóstico de câmera e roteiro de testes manuais da apresentação |
+
+Os testes de comportamento de segurança recebem atenção particular. Para cada defesa implementada, existe ao menos um teste que tenta violá-la: apagar uma linha do histórico, alterar o arquivo do modelo, apresentar um segundo rosto, manter os olhos abertos sem piscar, trocar de pessoa durante a prova de vida e repetir tentativas até o bloqueio. Testar apenas o caminho feliz, em que tudo dá certo, deixaria sem verificação justamente o que o sistema promete.
+
+## Riscos e mitigação
+
+O {quad:riscos} lista os principais riscos identificados no início do projeto e a forma de lidar com cada um.
+
+[QUADRO riscos | Principais riscos do projeto e mitigação | Elaborado pelos autores (2026). | 38,14,48]
+| Risco | Impacto | Mitigação |
+| Taxa de falsa aceitação alta com descritor clássico | Alto | Limiar conservador, margem mínima entre candidatos, votação que filtra erros de um só quadro e prova de vida (o efeito dessas camadas sobre a falsa aceitação não foi medido) |
+| Falsa rejeição alta com pouca iluminação | Médio | Verificação de qualidade, equalização adaptativa, mensagens de orientação ao usuário |
+| Fraude com foto ou vídeo do usuário | Alto | Desafio de piscada, recusa de mais de um rosto, registro fotográfico de tentativas negadas |
+| Câmera indisponível durante a apresentação | Alto | Autenticação por arquivo de imagem e avaliação por base pública, sem câmera |
+| Adulteração de modelo ou histórico | Alto | Impressão digital SHA-256 do modelo e registros encadeados por *hash* |
+| Parâmetros escolhidos sem evidência | Médio | Experimentos controlados e documentados, com scripts reproduzíveis |
+| Falta de dados de teste de pessoas reais | Médio | Uso de base pública para avaliação e demonstração, e cadastro voluntário do grupo para a câmera |
+
+## Critérios de aceitação
+
+O trabalho será considerado concluído quando todos os requisitos essenciais estiverem implementados e verificados, o conjunto de testes automatizados passar integralmente, os parâmetros de decisão estiverem justificados por experimento, o desempenho tiver sido medido e relatado com suas limitações e a demonstração mostrar, ao vivo, as cinco fases, os três níveis de acesso, a recusa de um desconhecido e o registro de tudo no histórico.

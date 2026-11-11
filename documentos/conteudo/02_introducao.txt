@@ -1,0 +1,39 @@
+# Introdução {#intro}
+
+## Contextualização
+
+Proteger informações e áreas sensíveis sempre dependeu de responder, com segurança, a uma pergunta simples: quem está tentando entrar? Os mecanismos tradicionais de controle de acesso baseiam-se em algo que a pessoa sabe, como uma senha, ou em algo que ela possui, como um cartão ou uma chave. Ambos podem ser esquecidos, emprestados, copiados ou roubados, e nenhum deles prova que quem os apresenta é, de fato, o titular. A biometria acrescenta uma terceira categoria, algo que a pessoa é, e identifica o indivíduo por características físicas ou comportamentais, como a face, a impressão digital, a íris ou a voz (JAIN; ROSS; PRABHAKAR, 2004).
+
+Entre as modalidades biométricas, a face tem características que a tornam atraente para o controle de acesso. Sua captura é não invasiva e dispensa contato físico, a câmera necessária é barata e já está presente em quase todo computador, e o usuário compreende intuitivamente o procedimento, o que favorece a aceitação. Em contrapartida, a face é uma das modalidades mais sensíveis a variações externas, como iluminação, pose, expressão e oclusões, e também uma das mais expostas a tentativas de fraude, já que fotografias do rosto de uma pessoa podem ser obtidas com facilidade (ZHAO et al., 2003). Um sistema de reconhecimento facial para uso sério precisa, portanto, ser projetado com essas fragilidades em mente.
+
+O reconhecimento facial passou por uma evolução profunda nas últimas décadas. Os primeiros métodos descreviam o rosto de forma global, como no trabalho de Turk e Pentland (1991) com as *eigenfaces*, e a detecção em tempo real tornou-se prática com o detector em cascata de Viola e Jones (2001). Descritores locais de textura, como os padrões binários locais, mostraram-se robustos a variações de iluminação com baixo custo computacional (AHONEN; HADID; PIETIKÄINEN, 2006). Mais recentemente, redes neurais profundas passaram a dominar os resultados em bases de grande escala (SCHROFF; KALENICHENKO; PHILBIN, 2015; WANG; DENG, 2021). Cada família de métodos tem custos e benefícios, e a escolha depende do contexto de aplicação, o que é discutido no capítulo de fundamentos.
+
+## O problema proposto
+
+O enunciado da atividade propõe um cenário fictício, porém instrutivo. Imagina-se um cofre de segurança máxima, localizado no Ministério do Meio Ambiente, que guarda informações capazes de provocar uma catástrofe se caírem em mãos erradas, por tratarem do uso de toxinas de alto poder de dano. A equipe é convocada para desenvolver uma solução de reconhecimento facial que funcione como a última linha de defesa do cofre, identificando e autenticando automaticamente os usuários e decidindo pelo acesso conforme um esquema de permissões em três níveis:
+
+- nível 1: acesso concedido a indivíduos com permissão geral;
+- nível 2: acesso restrito aos diretores de divisões específicas;
+- nível 3: acesso exclusivo ao ministro do Meio Ambiente.
+
+O enunciado exige ainda que o desenvolvimento siga as cinco fases do processamento de imagens digitais, que a imagem seja obtida por reconhecimento facial em tempo real (admitindo-se também scanner ou câmera para a imagem de referência) e que o refinamento, a funcionalidade, o tratamento de erros, as funções extras e os relatórios adicionais sejam considerados na avaliação.
+
+## Delimitação do escopo
+
+Por se tratar de uma atividade acadêmica, algumas fronteiras foram assumidas desde o início. O sistema é um protótipo de software: não controla uma fechadura real, e a "abertura do cofre" é representada por uma tela de acesso permitido ou negado e pelo registro da tentativa. O universo de usuários é pequeno, adequado a um cofre institucional, e não ao reconhecimento de milhões de pessoas. O reconhecimento é feito com descritores clássicos de visão computacional, e não com redes neurais profundas, decisão justificada no capítulo de plano de desenvolvimento e que tem vantagens didáticas importantes: todo o processamento é transparente, pode ser explicado passo a passo e roda em um computador comum, sem placa gráfica e sem baixar modelos de terceiros.
+
+Também foi assumido que o sistema não substitui outras camadas de proteção. Em um cofre real, a biometria facial seria combinada com outros fatores, como cartão, senha ou segunda modalidade biométrica, justamente porque nenhum mecanismo isolado é infalível. O protótipo implementa defesas próprias, mas o trabalho discute com franqueza o que elas não cobrem.
+
+## Metodologia
+
+O trabalho seguiu uma metodologia de desenvolvimento incremental e orientada a testes. Inicialmente, fez-se um levantamento bibliográfico sobre biometria, processamento de imagens, detecção e reconhecimento de faces e segurança de sistemas biométricos. Em seguida, os requisitos do enunciado foram traduzidos em requisitos de software, e a arquitetura foi organizada em módulos que correspondem às cinco fases do processamento de imagens, mais os módulos de segurança e de apoio.
+
+A implementação foi feita em linguagem Python, com as bibliotecas OpenCV e NumPy para o tratamento das imagens e SQLite para a persistência. Cada módulo recebeu testes automatizados, e as decisões de projeto que dependem de números, como o limiar de decisão e os parâmetros do descritor, foram tomadas a partir de experimentos controlados em uma base pública de imagens de rostos, e não por intuição. Os experimentos, seus resultados e suas limitações estão descritos no capítulo de projeto.
+
+## Interdisciplinaridade
+
+O problema do cofre biométrico não pertence a uma única área do conhecimento. A representação da imagem como matriz numérica, a convolução, a decomposição em autovalores e a análise de histogramas vêm da matemática e do processamento de sinais. A medição de desempenho, com taxas de erro, distribuições de distâncias e intervalos de incerteza, vem da estatística. A formação da imagem, a influência da iluminação e o funcionamento do sensor vêm da óptica e da física. A política de permissões e a trilha de auditoria vêm da segurança da informação e da criptografia, com o uso de funções de *hash* para proteger a integridade dos registros. O tratamento de dados biométricos, classificados como dados sensíveis, envolve o direito, em especial a Lei Geral de Proteção de Dados Pessoais, e a ética, por causa dos riscos de vigilância indevida e de desempenho desigual entre grupos de pessoas. Por fim, a usabilidade do sistema aproxima o projeto da psicologia cognitiva e do design de interação, pois um sistema seguro que ninguém consegue usar acaba contornado pelos próprios usuários. O capítulo de projeto retoma o tema e mostra onde cada área aparece concretamente no programa.
+
+## Organização do trabalho
+
+Além deste capítulo e do objetivo, o trabalho é composto por mais quatro partes. O capítulo {sec:fund} apresenta os fundamentos das principais técnicas de reconhecimento facial, desde os conceitos de biometria até os métodos de classificação, as métricas de desempenho, a segurança de sistemas biométricos e os aspectos legais. O capítulo {sec:plano} descreve o plano de desenvolvimento da aplicação, com requisitos, tecnologias, etapas, plano de testes e riscos. O capítulo {sec:projeto} detalha o projeto e a estrutura do programa, módulo a módulo, e reúne os resultados dos testes e experimentos. O capítulo {sec:final} traz as considerações finais. A listagem completa do código acompanha o trabalho em documento separado, conforme exigido, e a ficha de atividades práticas supervisionadas está na última página do trabalho, reservada para as fichas digitalizadas.

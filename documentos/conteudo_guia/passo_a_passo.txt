@@ -1,0 +1,169 @@
+# Passo a passo para testar o sistema no seu computador
+
+Este documento é para quem recebeu o arquivo `APS_Biometria_Pacote_de_Teste.zip`. Você não precisa saber programar: é só seguir os passos na ordem. Cada teste diz o que digitar e **o que deve aparecer na tela**. Se aparecer algo diferente, anote (ou tire um print) e mande para o grupo.
+
+## O que vem no pacote
+
+[QUADRO conteudo | Conteúdo do pacote | Elaborado pelos autores (2026). | 30,70]
+| Item | Para que serve |
+| `LEIA-ME_PASSO_A_PASSO.pdf` | Este documento |
+| `Guia_do_Grupo.pdf` | Explica a ideia do trabalho, o código e as perguntas da banca (leitura, não é preciso para testar) |
+| `0_instalar.bat` a `7_calibrar.bat` | Atalhos de um clique: o número é o do teste neste documento (0 = instalar as bibliotecas). São opcionais; os mesmos comandos estão escritos aqui. Se o Windows avisar que o arquivo não é reconhecido, clique em "Mais informações" e depois em "Executar assim mesmo" |
+| Pasta `codigo` | O programa: `cofre` (o sistema), `testes` (os testes automáticos), `ferramentas` (experimentos e simulação) |
+| Pasta `base_teste\orl` | 400 fotos de rostos de uma base pública de pesquisa, usadas pelos testes automáticos e pela medição de desempenho. Não são fotos do grupo |
+
+## Antes de começar
+
+- Um computador com **Windows 10 ou 11**.
+- Uma **webcam** funcionando, para os testes 3 a 5 (os testes 1, 2 e 6 não precisam de câmera).
+- **Internet** apenas para instalar o Python e as bibliotecas, na primeira vez.
+- Para o roteiro completo (teste 5), **quatro pessoas** diante do mesmo computador.
+
+## Preparação (uma vez por computador)
+
+### Passo 1: extrair o zip
+
+Clique com o botão direito no arquivo `.zip`, escolha **Extrair tudo** e use um caminho curto e simples, como `C:\APS_Biometria`. Evite pastas dentro do OneDrive ou da Área de Trabalho, porque a sincronização pode travar arquivos em uso. Ao terminar, você deve ver dentro da pasta: `codigo`, `base_teste` e os arquivos `.bat`.
+
+### Passo 2: instalar o Python 3.12
+
+- Entre em python.org, baixe o **Python 3.12** para Windows e abra o instalador.
+- Na **primeira tela**, marque a caixa **"Add python.exe to PATH"** (isso é importante) e clique em **Install Now**.
+- Para conferir, abra o PowerShell (próximo passo) e digite `python --version`. **Esperado:** `Python 3.12.x`. Se aparecer "não é reconhecido", feche o PowerShell, abra de novo; se continuar, refaça a instalação marcando a caixa do PATH.
+
+### Passo 3: abrir o PowerShell dentro da pasta `codigo`
+
+Abra a pasta `codigo` no Explorador de Arquivos. Clique na **barra de endereço** no topo (onde aparece o caminho da pasta), apague o texto, digite `powershell` e aperte **Enter**. Uma janela azul abre já dentro da pasta. Todos os comandos abaixo são digitados **nessa janela**. Para conferir, digite `dir`: deve listar `cofre`, `testes`, `ferramentas` e `requirements.txt`.
+
+### Passo 4: instalar as bibliotecas
+
+Digite:
+
+`python -m pip install -r requirements.txt`
+
+**Esperado:** várias linhas de download e, no fim, `Successfully installed ...` (ou "Requirement already satisfied", se já estiver instalado). Leva um ou dois minutos. Um aviso amarelo sobre "scripts not on PATH" pode ser ignorado.
+
+## Os testes
+
+### Teste 1: testes automáticos (sem câmera, 5 segundos)
+
+`python -m unittest discover -s testes`
+
+**Esperado:** uma linha final com `Ran 55 tests` e, abaixo, `OK`. Se aparecer `OK (skipped=15)`, a pasta `base_teste` não está ao lado de `codigo`: confira o passo 1. Se aparecer `FAILED`, copie as últimas 20 linhas e mande ao grupo.
+
+### Teste 2: simulação dos fluxos de câmera (sem câmera e sem pessoas)
+
+`python ferramentas\simulacao_interface.py ..\base_teste\orl`
+
+Executa o cadastro, a autenticação e a prova de vida com uma câmera simulada. **Esperado**, nas linhas do meio:
+
+- `quadros simulados com rosto detectado: 10/10`
+- três linhas `cadastrado ... com 25 amostras pelo fluxo de câmera`
+- `ministro -> câmara central ...: permitido=True`
+- `diretor -> câmara central: permitido=False`
+- `com prova de vida e SEM piscada (foto parada): permitido=False`
+- `com prova de vida e piscada simulada: permitido=True`
+- `integridade do histórico: (True, None)`
+
+### Teste 3: câmera e detecção (12 segundos)
+
+`python -m cofre diagnostico`
+
+Uma janela com a sua imagem abre. **Olhe para a câmera e pisque várias vezes** durante os 12 segundos. **Esperado**, no PowerShell:
+
+- `Rosto detectado` em quase todos os quadros (acima de 90%);
+- `Dois olhos abertos` na maioria dos quadros;
+- `Piscadas reconhecidas` com um número maior que zero.
+
+Se a janela não abrir ou aparecer "Câmera indisponível", feche Teams, Zoom e o aplicativo Câmera do Windows e confira em Configurações > Privacidade > Câmera se os aplicativos de área de trabalho podem usar a câmera. Se as piscadas ficarem em zero, tente de novo com mais luz de frente e piscadas bem marcadas, e anote o resultado.
+
+### Teste 4: medir o desempenho com as fotos da base pública (sem câmera)
+
+`python -m cofre avaliar ..\base_teste\orl --amostras 5`
+
+**Esperado:** um resumo com `Pessoas cadastradas: 20   Intrusos: 20`, `EER` de cerca de 17% (17,25%) e a linha `Limiar configurado hoje: 0.38`.
+
+### Teste 5: o roteiro completo do cofre (câmera e 4 pessoas)
+
+Antes de começar, no mesmo PowerShell, digite (isso manda os dados do teste para uma pasta separada, que você pode apagar depois):
+
+`$env:COFRE_DADOS = "C:\APS_Biometria\dados_teste"`
+
+(ajuste o caminho se você extraiu em outro lugar). Depois abra o menu:
+
+`python -m cofre`
+
+Chame as quatro pessoas de A, B, C e D. **A** será o ministro, **B** um diretor, **C** um usuário geral e **D** não será cadastrada. As opções do menu são: 1 Cadastrar, 2 Autenticar, 3 Listar, 4 Remover, 5 Relatórios, 6 Integridade do histórico, 7 Demonstração das 5 fases, 8 Diagnóstico, 0 Sair.
+
+**Regra do bloqueio:** três falhas de reconhecimento seguidas (rosto desconhecido ou prova de vida que falha) bloqueiam o terminal por 60 segundos. Cada tentativa de um desconhecido leva até 15 segundos. Entre um teste de ataque e outro, faça uma autenticação legítima (por exemplo, A abrindo o Arquivo Geral), que zera o contador.
+
+[QUADRO roteiro | Roteiro com quatro pessoas | Elaborado pelos autores (2026). | 10,36,54]
+| Passo | O que fazer | Resultado esperado |
+| 1 | A: opção 1. Digite nome e cargo. O primeiro cadastro é sempre o do ministro. Siga as instruções da janela (olhar de frente, virar um pouco para os lados, sorrir) | A janela captura 25 amostras e o programa diz que o usuário foi cadastrado |
+| 2 | B: opção 1. O programa pede que A se autentique: A olha para a câmera e **pisca**. Depois cadastre B como nível 2 e escolha a divisão "Agrotóxicos e Biocidas" | A é aceito; B é cadastrado |
+| 3 | C: opção 1 (a autenticação de A vale por 5 minutos). Cadastre C como nível 1 | C cadastrado |
+| 4 | Opção 2. A escolhe o compartimento 4 (Câmara Central), olha e pisca | Tela verde: ACESSO PERMITIDO |
+| 5 | B escolhe o compartimento 2 (Laboratório de Toxinas Agrícolas) | PERMITIDO |
+| 6 | B tenta o compartimento 3 (Resíduos Perigosos) e depois o 4 | NEGADO nos dois (tela vermelha, com o motivo) |
+| 7 | C abre o compartimento 1; depois tenta o 2 | PERMITIDO no 1; NEGADO no 2 |
+| 8 | D (não cadastrada) tenta qualquer compartimento. Depois A abre o 1 | NEGADO, "rosto não reconhecido", após cerca de 15 s |
+| 9 | Mostre uma foto de A no celular diante da câmera. Depois A abre o 1 | Deve ser NEGADO (a foto não pisca). **Anote o que realmente acontecer** |
+| 10 | Duas pessoas no quadro ao mesmo tempo. Depois A abre o 1 | Mensagem "Mais de um rosto no campo de visão"; não pode haver acesso |
+| 11 | D tenta três vezes seguidas | Na terceira, o terminal bloqueia por 60 s. Espere acabar |
+| 12 | Opção 5 (A se autentica) | Resumo na tela e arquivos CSV em `dados_teste\relatorios` (abrem no Excel) |
+| 13 | Opção 6 | "Histórico ÍNTEGRO" |
+| 14 | Opção 7 | Janela com as cinco fases lado a lado, ao vivo. ESC fecha |
+| 15 | Opção 4: escolha o ministro e confirme com `s` | Recusado: "O ministro não pode ser removido pelo menu" |
+
+Se o sistema **não reconhecer uma pessoa cadastrada**, veja "Se o rosto não for reconhecido" mais abaixo antes de mexer em qualquer coisa.
+
+### Teste 6: o histórico detecta fraude (opcional)
+
+Com `COFRE_DADOS` definido (Teste 5) e alguns acessos já feitos, **feche o menu** (opção 0) e rode:
+
+`python ferramentas\adulterar_historico.py editar`
+
+Depois abra o menu de novo (`python -m cofre`) e escolha a opção 6. **Esperado:** "HISTÓRICO VIOLADO a partir da linha N". O script se recusa a rodar se `COFRE_DADOS` não estiver definido, para não estragar dados importantes. A variante `apagar` remove a última linha.
+
+### Teste 7: conferir o limiar com os rostos do grupo (opcional)
+
+Depois de cadastrar A, B e C (passos 1 a 3 do Teste 5), com `COFRE_DADOS` ainda definido:
+
+`python -m cofre calibrar`
+
+**Esperado:** um resumo com a distância dos rostos legítimos e dos impostores. Anote os números e mande ao grupo: eles dizem se o limiar de 0,38 serve para as câmeras de vocês. O resultado é otimista (mesma sessão, poucos impostores).
+
+## Se o rosto não for reconhecido
+
+- Melhore a luz: de frente, sem janela ou lâmpada forte atrás de você.
+- Cadastre e teste **no mesmo lugar**, com o rosto sem óculos escuros, sem boné e sem sombra.
+- Rode o Teste 7. Só mexa no limiar se o grupo combinar, porque aumentar o limiar também aumenta o risco de aceitar um intruso.
+
+## Se algo der errado
+
+[QUADRO problemas | Problemas comuns | Elaborado pelos autores (2026). | 38,62]
+| O que aparece | O que fazer |
+| `python` não é reconhecido | Reinstale o Python marcando "Add python.exe to PATH" e abra um PowerShell novo |
+| Erro ao instalar com `pip` (certificado, proxy, tempo esgotado) | Tente de novo em outra rede (por exemplo, o celular como roteador) |
+| `ModuleNotFoundError: No module named 'cv2'` | O passo 4 não terminou: rode-o de novo na pasta `codigo` |
+| Erro falando de "cascata" ou arquivo `.xml` | Versão errada do OpenCV: `python -m pip install opencv-python==4.11.0.86` |
+| "Câmera indisponível" | Feche Teams, Zoom e o app Câmera; confira Privacidade > Câmera |
+| "Terminal bloqueado" | Espere 60 segundos |
+| "Modelo alterado" ou "sem impressão digital" | `python -m cofre retreinar` e digite `SIM` |
+| Quer recomeçar do zero | Feche o programa e apague a pasta definida em `COFRE_DADOS` (ou `codigo\dados`, se não definiu) |
+
+## O que mandar de volta ao grupo
+
+Para cada teste, anote: **funcionou como esperado?** (sim ou não) e, se não, o **texto exato** da mensagem (ou um print). No Teste 3, anote as três porcentagens. No Teste 5, anote o resultado real dos passos 9 e 10, mesmo que seja "passou", porque isso é uma informação importante para o trabalho. No Teste 7, mande os números.
+
+[QUADRO registro | Folha para anotar os resultados | Elaborado pelos autores (2026). | 24,12,64]
+| Teste | Funcionou? | Observações (mensagens, números, prints) |
+| 1. Testes automáticos |  |  |
+| 2. Simulação |  |  |
+| 3. Câmera e piscada |  |  |
+| 4. Desempenho (ORL) |  |  |
+| 5. Roteiro com 4 pessoas |  |  |
+| 6. Histórico adulterado |  |  |
+| 7. Calibração |  |  |
+
+Seu computador: Windows 10 ou 11? Qual a câmera (integrada ou externa)? Anote também, pois ajuda a entender diferenças entre máquinas.

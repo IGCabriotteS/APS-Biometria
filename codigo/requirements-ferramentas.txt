@@ -1,0 +1,5 @@
+# Somente para refazer os experimentos e as figuras do relatório (não é preciso
+# para usar o programa).
+-r requirements.txt
+matplotlib>=3.8
+scikit-learn>=1.4      # apenas para baixar a base ORL (Olivetti faces)
